@@ -1,0 +1,49 @@
+// Create Eclipse Project
+// Usage: from cmd line in project folder: gradle eclipse
+
+apply plugin: 'java'
+
+// Specify all projects (modules) should use maven central for repositories
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+
+jar {
+	manifest.attributes['Implementation-Title'] = "test"
+}
+
+// Setup all dependencies
+// Reference: http://gradle.org/docs/current/dsl/org.gradle.api.artifacts.dsl.DependencyHandler.html
+dependencies {
+	
+	compile 'org.hibernate:hibernate-entitymanager:4.1.4.Final'
+	compile 'org.hibernate.javax.persistence:hibernate-jpa-2.0-api:1.0.1.Final'
+	compile 'org.hibernate:hibernate-jpamodelgen:1.2.0.Final'
+
+	compile fileTree(dir: getGlassfishHomeDir() + File.separator + "glassfish" + File.separator + "modules", include: '*.jar') 
+
+	testCompile 'junit:junit:4.10'
+	//testCompile 'org.apache.derby:derby:10.9.1.0'
+	testCompile 'org.jboss.arquillian:arquillian-bom:1.0.2.Final'
+	testCompile'org.jboss.arquillian.container:arquillian-glassfish-embedded-3.1:1.0.0.CR3'
+	testCompile 'org.jboss.arquillian.junit:arquillian-junit-container:1.0.2.Final'
+
+	testRuntime files(getGlassfishHomeDir() + File.separator + "glassfish"+ File.separator + "lib" + File.separator + "embedded" + File.separator + "glassfish-embedded-static-shell.jar")
+}
+
+def getGlassfishHomeDir() {
+	def glassfishHome = System.getenv('GLASSFISH_HOME')
+	
+	if (glassfishHome == null || glassfishHome.length() <= 0)
+	{
+		msg = "No GLASSFISH_HOME in environment variable. Please set GLASSFISH_HOME to glassfish installation directory"
+		
+		println msg
+		
+		throw new RuntimeException(msg)
+	}
+	
+	return glassfishHome
+}
